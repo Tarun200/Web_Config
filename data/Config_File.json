@@ -1,0 +1,16 @@
+{
+  "WIFI_SSID": "Service",
+  "WIFI_PSWD": "12345678",
+  "MD_PSWD": "8bHnIEYfB3AlzrTVMoWeTQ",
+  "TCP": "broker.hivemq.com",
+  "PORT": "1883",
+  "CL_ID": "Service1_GW",
+  "MCN_TYP": "GW_Serv1",
+  "DEV_ID": "TSA_Serv1",
+  "MCN_ID": "GW_ServM01",
+  "MQTT_CLID": "MQCL_Serv1_Dev",
+  "COM_SELEC": "0",
+  "DAT_FRQ" : "60",
+  "MQTT_TOPIC": "topic/energyassessment",
+  "GSM_APN": "www"
+}
