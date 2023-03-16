@@ -4,8 +4,9 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <Preferences.h>
+#include "webConfigManager.h"
 
-class WebConfigModeDetection {
+class WebConfigModeDetection{
   public:
     WebConfigModeDetection();
     bool isWebConfigMode();

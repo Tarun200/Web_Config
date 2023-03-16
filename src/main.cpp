@@ -4,24 +4,27 @@
 #include "webConfigManager.h"
 #include "captivePortal.h"
 #include <DNSServer.h>
-#include <ESPAsyncWiFiManager.h>
+
 #include <ESPAsyncWebServer.h>
-// #include <ESPAsync_WiFiManager_Lite.h>
-// #define SCAN_WIFI_NETWORKS                  true
+
 #include <esp_task_wdt.h>
 
 #include<SPIFFS.h>
 
-WebConfigManager configManager;
-DNSServer dns;
-AsyncWebServer server(80);
-AsyncWiFiManager wiFiManager(&server,&dns);
+#include "webConfigDetection.h"
 
-CaptivePortal captivePortal(server,dns,wiFiManager);
+
+WebConfigManager configManager;
+
+CaptivePortal captivePortal;
+
+
 
 void setup() {
     
     Serial.begin(115200);
+
+
 
     configManager.ssid_key_gen();
 
@@ -32,10 +35,14 @@ void setup() {
     captivePortal.init();
 
     esp_task_wdt_init(60, true);
+    if(!SPIFFS.begin()){
+        Serial.println("SPIFFS initialization failed");
+        return;
+    }
+    Serial.println("SPIFFS initialization successful");
 
-    SPIFFS.format();
+    
 
-    SPIFFS.begin();
 }
 
 void loop() {

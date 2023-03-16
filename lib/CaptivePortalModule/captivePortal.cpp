@@ -9,18 +9,17 @@
 #include<ArduinoJson.h>
 
 
+CaptivePortal::CaptivePortal():server(80) {
+    loginStartTime = millis();
+    isTimedOut = false;
+  
+}
 
-// CaptivePortal::CaptivePortal():server(80) {
-//     loginStartTime = millis();
-//     isTimedOut = false;
-//     AsyncWiFiManager wiFiManager(&server,&dns);
-// }
-
-CaptivePortal::CaptivePortal(AsyncWebServer& server, DNSServer& dns, AsyncWiFiManager& wifiManager) 
-    : server(server), dns(dns), wifiManager(wifiManager) {
-    // loginStartTime = millis();
-    // isTimedOut = false;
-    }
+// CaptivePortal::CaptivePortal(AsyncWebServer& server, DNSServer& dns, AsyncWiFiManager& wifiManager) 
+//     : server(server), dns(dns), wifiManager(wifiManager) {
+//     // loginStartTime = millis();
+//     // isTimedOut = false;
+//     }
 
 
 void CaptivePortal::init() {
@@ -42,250 +41,335 @@ void CaptivePortal::init() {
             request->send(401, "text/plain", "Unauthorized");
         }
     });
+
     server.on("/menu", HTTP_GET, [](AsyncWebServerRequest *request){
-        String html = "<html><head><style>body{text-align:center;} .button{display:block;margin:50px auto;padding:10px 20px;font-size:20px;background-color:#45a049;color:white;border-radius:5px;text-decoration:none;}</style></head><body><a class='button' href='/wifi_config'>WiFi Configuration</a><br/><a class='button' href='/main_config'>Main Configuration</a><br/><a class='button' href='/soft_reboot'>Soft Reboot</a></body></html>";
+        String html = "<html><head><title>Menu</title><style>body {font-family: Arial, sans-serif;}";
+        html += ".button{display:block;margin:50px auto;padding:10px 20px;font-size:20px;background-color:#45a049;color:white;border-radius:5px;text-decoration:none;}";
+        html += "@media screen and (max-width: 768px) {.button{margin: 20px auto;}}";
+        html += "</style></head><body>";
+        html += "<a class='button' href='/wifi_config'>WiFi Configuration</a><br/>";
+        html += "<a class='button' href='/main_config'>Main Configuration</a><br/>";
+        html += "<a class='button' href='/soft_reboot'>Soft Reboot</a>";
+        html += "</body></html>";
         request->send(200, "text/html", html);
     });
 
-//     server.on("/wifi_config", HTTP_GET, [](AsyncWebServerRequest *request)
-// {
-//      String html = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'><style>";
-//   html += "body {background-color: #f2f2f2; font-family: Arial, sans-serif;}";
-//   html += "h2 {text-align: center;}";
-//   html += "table {border-collapse: collapse; width: 100%;}";
-//   html += "th, td {text-align: left; padding: 8px;}";
-//   html += "th {background-color: #4CAF50; color: white;}";
-//   html += "tr:nth-child(even) {background-color: #f2f2f2;}";
-//   html += "form {max-width: 500px; margin: auto;}";
-//   html += "input[type='text'], input[type='password'], select {width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-top: 6px; margin-bottom: 16px;}";
-//   html += "input[type='submit'] {background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer;}";
-//   html += "input[type='submit']:hover {background-color: #45a049;}";
-//   html += "@media screen and (max-width: 600px) {";
-//   html += "input[type='text'], input[type='password'], select {width: 100%;}";
-//   html += "}";
-//   html += "</style></head><body>";
-//   html += "<h2>Wi-Fi Configuration</h2>";
-//   html += "<h2>Wi-Fi Configuration</h2>";
-
-//   // Get the list of available access points
-//   int numNetworks = WiFi.scanNetworks();
-//   if (numNetworks == 0) {
-//     html += "<p>No access points found</p>";
-//   }
-//   else {
-//     // Sort the access points by signal strength
-//     int indices[numNetworks];
-//     for (int i = 0; i < numNetworks; i++) {
-//       indices[i] = i;
-//     }
-//     for (int i = 0; i < numNetworks; i++) {
-//       for (int j = i + 1; j < numNetworks; j++) {
-//         if (WiFi.RSSI(indices[j]) > WiFi.RSSI(indices[i])) {
-//           std::swap(indices[i], indices[j]);
-//         }
-//       }
-//     }
-
-//     // Add a table with the list of access points
-//     html += "<table><thead><tr><th>SSID</th><th>Signal Strength</th></tr></thead><tbody>";
-//     for (int i = 0; i < numNetworks; i++) {
-//       int index = indices[i];
-//       int rssi = WiFi.RSSI(index);
-
-//       // Calculate signal strength in percentage
-//       int signalPercentage = 0;
-//       if (rssi <= -100) {
-//         signalPercentage = 0;
-//       }
-//       else if (rssi >= -50) {
-//         signalPercentage = 100;
-//       }
-//       else {
-//         signalPercentage = 2 * (rssi + 100);
-//       }
-
-//       // Add Wi-Fi signal icon based on signal strength
-//       String signalIcon = "<i class='fas fa-wifi' style='color: green;'></i>";
-//       if (signalPercentage <= 20) {
-//         signalIcon = "<i class='fas fa-wifi' style='color: red;'></i>";
-//       }
-//       else if (signalPercentage <= 60) {
-//         signalIcon = "<i class='fas fa-wifi' style='color: orange;'></i>";
-//       }
-//       else if (signalPercentage <= 80) {
-//         signalIcon = "<i class='fas fa-wifi' style='color: yellow;'></i>";
-//       }
-
-//       html += "<tr><td>" + WiFi.SSID(index) + "</td><td>" + signalIcon + "</td></tr>";
-//     }
-//     html += "</tbody></table>";
-
-//     // Add a form for entering the Wi-Fi credentials
-//     html += "<form method='POST' action='/wifi_save_config'>";
-//     html += "<p><label for='ssid'>SSID:</label><br><select id='ssid' name='ssid'>";
-//     for (int i = 0; i < numNetworks; i++) {
-//         int index = indices[i];
-//         html += "<option value='" + WiFi.SSID(index) + "'>" + WiFi.SSID(index) + "</option>";
-//     }
-//     html += "</select></p><p><label>Password:</label><br><input type='password' name='password'></p>";
-//     html += "<p><input type='submit' value='Save'></p></form>";
-//   }
-//   html += "</body></html>";
-//   request->send(200, "text/html", html); 
-// });
+    server.on("/wifi_config", HTTP_GET, [](AsyncWebServerRequest *request){
 
 
-   
+        // String loadingHtml = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'></head><body>";
+        // loadingHtml += "<div style='text-align:center;margin-top:20%;'><h2>Loading...</h2>";
+        // loadingHtml += "<div class='loader'></div></div>";
+        // loadingHtml += "<style> .loader {border: 10px solid #f3f3f3;border-top: 10px solid #4CAF50;border-radius: 50%;width: 50px;height: 50px;animation: spin 2s linear infinite;} @keyframes spin {0% { transform: rotate(0deg); }100% { transform: rotate(360deg); }}</style></body></html>";
 
-    server.on("/wifi_config", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-                
-  String html = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'><style>";
-  html += "body {background-color: #f2f2f2; font-family: Arial, sans-serif;}";
-  html += "h2 {text-align: center;}";
-  html += "table {border-collapse: collapse; width: 100%;}";
-  html += "th, td {text-align: left; padding: 8px;}";
-  html += "th {background-color: #4CAF50; color: white;}";
-  html += "tr:nth-child(even) {background-color: #f2f2f2;}";
-  html += "form {max-width: 500px; margin: auto;}";
-  html += "input[type='text'], input[type='password'], select {width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-top: 6px; margin-bottom: 16px;}";
-  html += "input[type='submit'] {background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer;}";
-  html += "input[type='submit']:hover {background-color: #45a049;}";
-  html += "@media screen and (max-width: 600px) {";
-  html += "input[type='text'], input[type='password'], select {width: 100%;}";
-  html += "}";
-  html += "</style></head><body>";
-  html += "<h2>Wi-Fi Configuration</h2>";
+        // request->send(200, "text/html", loadingHtml);
 
-  // Get the list of available access points
-  int numNetworks = WiFi.scanNetworks();
-  if (numNetworks == 0) {
-    html += "<p>No access points found</p>";
-  }
-  else {
-    // Sort the access points by signal strength
-    int indices[numNetworks];
-    for (int i = 0; i < numNetworks; i++) {
-      indices[i] = i;
-    }
-    for (int i = 0; i < numNetworks; i++) {
-      for (int j = i + 1; j < numNetworks; j++) {
-        if (WiFi.RSSI(indices[j]) > WiFi.RSSI(indices[i])) {
-          std::swap(indices[i], indices[j]);
+
+
+        String html = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'><style>";
+
+        
+        html += "body {background-color: #f2f2f2; font-family: Arial, sans-serif;}";
+        html += "h2 {text-align: center;}";
+
+        html += "table {border-collapse: collapse; width: 100%;}";
+        html += "th, td {text-align: left; padding: 8px;}";
+        html += "th {background-color: #4CAF50; color: white;}";
+        html += "tr:nth-child(even) {background-color: #f2f2f2;}";
+        html += "form {max-width: 500px; margin: auto;}";
+        html += "input[type='text'], input[type='password'], select {width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-top: 6px; margin-bottom: 16px;}";
+        html += "input[type='submit'] {background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer;}";
+        html += "input[type='submit']:hover {background-color: #45a049;}";
+        html += "input[type='button'] {background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer;}";
+        html += "input[type='button']:hover {background-color: #45a049;}";
+        html += "@media screen and (max-width: 600px) {";
+        html += "input[type='text'], input[type='password'], select {width: 100%;}";
+        html += "}";
+        html += ".signal-strong{background-image: url('https://w7.pngwing.com/pngs/869/377/png-transparent-mobile-phone-signal-signal-strength-in-telecommunications-computer-icons-iphone-keep-fit-electronics-black-mobile-phones.png');}";
+        html += ".signal-medium{background-image: url('https://static.thenounproject.com/png/3455928-200.png');}";
+        html += ".signal-weak{background-image: url('https://e7.pngegg.com/pngimages/370/431/png-clipart-iphone-symbol-computer-icons-wi-fi-signal-signal-computer-network-angle.png');}";
+        html += ".signal-strong, .signal-medium, .signal-weak{display:inline-block;width: 16px;height: 16px;background-size:100%;margin:0;padding:0;cōl̥ōr̥:#45a049;}";
+        html += "</style>";
+        
+        // Add the script code for hiding the loading screen
+        // html += "<script> window.onload = function() { document.getElementById('loading-screen').style.display = 'none'; }; </script>";
+
+        html += "</head><body>";
+        // html += "<div id='loading-screen'>";
+        // html += "<h2>Loading...</h2>";
+        // html += "<div class='loader'></div>";
+        // html += "</div>";
+        html += "<h2>Wi-Fi Configuration</h2>";
+
+
+        // Get the list of available access points
+        int numNetworks = WiFi.scanNetworks();
+        if (numNetworks == 0) {
+            html += "<p>No access points found</p>";
         }
-      }
-    }
+        else 
+        {
+            
 
+            // Sort the access points by signal strength
+            int indices[numNetworks];
+            for (int i = 0; i < numNetworks; i++) {
+                indices[i] = i;
+            }
+            for (int i = 0; i < numNetworks; i++) {
+                for (int j = i + 1; j < numNetworks; j++) {
+                    if (WiFi.RSSI(indices[j]) > WiFi.RSSI(indices[i])) {
+                        std::swap(indices[i], indices[j]);
+                    }
+                }
+            }
+             
     
 
-    // Add a table with the list of access points
-    html += "<table><thead><tr><th>SSID</th><th>RSSI</th></tr></thead><tbody>";
-    for (int i = 0; i < numNetworks; i++) {
-      int index = indices[i];
-    //   html += "<tr><td>" + WiFi.SSID(index) + "</td><td>" + getSignalIcon(WiFi.RSSI(index)) + "</td></tr>";
+            // Add a table with the list of access points
+            html += "<table><thead><tr><th>SSID</th><th>RSSI</th></tr></thead><tbody>";
+            for (int i = 0; i < numNetworks; i++) {
+                int index = indices[i];
+                int rssi = WiFi.RSSI(index);
+                String signalClass;
+                if (rssi >= -60) {
+                    signalClass = "signal-strong";
+                }            
+                else if (rssi >= -80) {
+                    signalClass = "signal-medium";
+                }
+                else {
+                    signalClass = "signal-weak";
+                }
+                html += "<tr><td>" + WiFi.SSID(index) + "</td><td><span class='" + signalClass + "'></span></td></tr>";
+            
+
+                // html += "<tr><td>" + WiFi.SSID(index) + "</td><td>" + String(WiFi.RSSI(index)) + " dBm</td></tr>";
+                
+            }
+            
+            html += "</tbody></table>";
+
+            // Add a form for entering the Wi-Fi credentials
+            html += "<form method='POST' action='/update_config'>";
+            html += "<p><label for='ssid'>SSID:</label><br><select id='ssid' name='ssid'>";
+            for (int i = 0; i < numNetworks; i++) {
+                int index = indices[i];
+                html += "<option value='" + WiFi.SSID(index) + "'>" + WiFi.SSID(index) + "</option>";
+            }
+            html += "</select></p><p><label>Password:</label><br><input type='password' name='password'></p>";
+            html += "<p><input type='submit' value='Save'></p>";
+
+            html += "<p><a href='/menu'><input type='button' value='Back'></a></p>";
+
+            html += "</form>";
+        
+        }
+
+
+         
+       
+        request->send(200, "text/html", html); 
+    });
+
+    server.on("/update_config", HTTP_POST, [](AsyncWebServerRequest *request) {
+        Serial.println("Inside update_config route");
+        if (!SPIFFS.exists("/Config_File.json")) {
+            Serial.println("Config file does not exist");
+            return;
+        }
+        File configFile = SPIFFS.open("/Config_File.json", "r");
+        if (!configFile) {
+            Serial.println("Failed to open config file for reading");
+            return;
+        }
     
-      html += "<tr><td>" + WiFi.SSID(index) + "</td><td>" + String(WiFi.RSSI(index)) + " dBm</td></tr>";
-    }
-    html += "</tbody></table>";
+        if (configFile.size() == 0) {
+            Serial.println("Config file is empty");
+            return;
+        }
+        char buf[configFile.size() + 1];
+        configFile.readBytes(buf, configFile.size());
+        buf[configFile.size()] = '\0';
+        DynamicJsonDocument doc(1024);
+        DeserializationError error = deserializeJson(doc, buf);
+        if (error) {
+            Serial.println("Failed to parse config file");
+            Serial.println(error.c_str());
+            return;
+        }
 
-    // Add a form for entering the Wi-Fi credentials
-    html += "<form method='POST' action='/wifi_save_config'>";
-    html += "<p><label for='ssid'>SSID:</label><br><select id='ssid' name='ssid'>";
-    for (int i = 0; i < numNetworks; i++) {
-        int index = indices[i];
-        html += "<option value='" + WiFi.SSID(index) + "'>" + WiFi.SSID(index) + "</option>";
-    }
-    html += "</select></p><p><label>Password:</label><br><input type='password' name='password'></p>";
-    html += "<p><input type='submit' value='Save'></p></form>";
-  }
-  request->send(200, "text/html", html); 
-});
+        if (request->hasParam("ssid",true) && request->hasParam("password",true)) {
+            Serial.println("bye");
+            String ssid = request->arg("ssid");
+            String password = request->arg("password");
+
+            Serial.println(ssid);
+            
+            Serial.println(password);
+
+            doc["WIFI_SSID"] = ssid;
+            doc["WIFI_PSWD"] = password;
+
+            File configFile = SPIFFS.open("/Config_File.json", "w");
+            if (!configFile) {
+                Serial.println("Failed to open config file for writing");
+                return;
+            }
+
+            serializeJson(doc, configFile);
+            // Read contents of the file
+            // String configContents;
+            // while (configFile.available()) {
+            //     configContents += char(configFile.read());
+            // }
+  
+            // // Print contents to Serial Monitor
+            // Serial.println(configContents);
+
+            configFile.close();
+         }
+         String html = "<h2>Config_File.json Serialized successfully</h2>";
+         request->send(200, "text/html", html);             
 
 
 
-    
-
-    // Register the "/wifi_save_config" route for handling the form submission
-    server.on("/wifi_save_config", HTTP_POST, [](AsyncWebServerRequest *request)
-              {
-                  String ssid = request->arg("ssid");
-                  String password = request->arg("password");
-                  AsyncWebServer server(80);
-                  DNSServer dns;
-                  AsyncWiFiManager wifiManager(&server, &dns);
-                  wifiManager.setConfigPortalTimeout(60);
-                  Serial.println("Test");
-                  wifiManager.autoConnect(ssid.c_str(), password.c_str());
-
-                  // Save the Wi-Fi credentials to SPIFFS
-                  File file = SPIFFS.open("/wifi.txt", "w");
-                  if (file)
-                  {
-                      file.println(ssid);
-                      file.println(password);
-                      file.close();
-                      request->send(200, "text/plain", "Wi-Fi credentials saved");
-                  }
-                  else
-                  {
-                      request->send(500, "text/plain", "Failed to save Wi-Fi credentials");
-                  }
-              });
+    });
 
 
     server.on("/main_config", HTTP_GET, [](AsyncWebServerRequest *request) {
-        // Read the config.json file
+        Serial.println("Inside main_config GET");
+        if (!SPIFFS.exists("/Config_File.json")) {
+            Serial.println("Config file does not exist");
+            return request->send(500, "text/plain", "Config file does not exist");
+        }
         File configFile = SPIFFS.open("/Config_File.json", "r");
         if (!configFile) {
-            request->send(500, "text/plain", "Failed to open config.json");
-            return;
+            Serial.println("Failed to open config file for reading");
+            return request->send(500, "text/plain", "Failed to open config file for reading");
         }
-        size_t size = configFile.size();
-        std::unique_ptr<char[]> buf(new char[size]);
-        // char buf[size];
-        configFile.readBytes(buf.get(), size);
-        configFile.close();
 
-        // Parse the JSON data
-        DynamicJsonDocument doc(JSON_SIZE);
-        DeserializationError error = deserializeJson(doc, buf.get());
+        if (configFile.size() == 0) {
+            Serial.println("Config file is empty");
+            return request->send(500, "text/plain", "Config file is empty");
+        }
+        char buf[configFile.size() + 1];
+        configFile.readBytes(buf, configFile.size());
+        buf[configFile.size()] = '\0';
+        DynamicJsonDocument doc(1024);
+        DeserializationError error = deserializeJson(doc, buf);
         if (error) {
-            request->send(500, "text/plain", "Failed to parse config.json");
-            return;
+            Serial.println("Failed to parse config file");
+            Serial.println(error.c_str());
+            return request->send(500, "text/plain", "Failed to parse config file");
         }
 
-        // Update the Wi-Fi credentials
-        String ssid = request->arg("ssid");
-        String password = request->arg("password");
-        doc["WIFI_SSID"] = ssid;
-        doc["WIFI_PSWD"] = password;
-
-        // Save the updated config.json file
-        File configFile2 = SPIFFS.open("/Config_File.json", "w");
-        if (!configFile2) {
-            request->send(500, "text/plain", "Failed to open config.json for writing");
-            return;
+        String html = "<html><head><title>Main Config</title>";
+        html += "<style>";
+        html += "body {font-family: Arial, sans-serif;}";
+        html += "form {margin: 2rem; padding: 2rem; background-color: #f2f2f2; border: 1px solid #ddd;}";
+        html += "table {border-collapse: collapse;}";
+        html += "td, th {padding: 0.5rem; border: 1px solid #ddd;}";
+        html += "input[type=text], input[type=password] {width: 100%; padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;}";
+        html += "input[type=submit], input[type=button] {background-color: #4CAF50; color: white; padding: 0.5rem; border: none; border-radius: 4px; cursor: pointer;}";
+        html += "input[type=submit]:hover, input[type=button]:hover {background-color: #45a049;}";
+        html += "@media screen and (max-width: 768px) {form {margin: 1rem; padding: 1rem;}}";
+        html += "</style></head><body>";
+        html += "<form method=\"post\" action=\"/main_update_config\">";
+        html += "<table>";
+        for (JsonPair kv : doc.as<JsonObject>()) {
+            String key = kv.key().c_str();
+            String value = kv.value().as<String>();
+            html += "<tr><th>" + key + "</th><td><input type=\"text\" name=\"" + key + "\" value=\"" + value + "\"></td></tr>";
         }
-        serializeJson(doc, configFile2);
-        configFile2.close();
 
-        // Send the JSON response
-        String json;
-        serializeJson(doc, json);
-        request->send(200, "application/json", json);
+        html += "</table>";
+        html += "<input type=\"submit\" name=\"submit\" value=\"Save\">";
+        html += "<p><a href='/menu'><input type='button' value='Back'></a></p>";
+        html += "</form>";
+        html += "</body></html>";
+
+        return request->send(200, "text/html", html);
     });
+
+    
+
+    server.on("/main_update_config", HTTP_POST, [](AsyncWebServerRequest *request) {
+	    Serial.println("Inside main_config POST");
+	    if (!request->hasParam("submit", true)) {
+		    return request->send(400, "text/plain", "Invalid request");
+	    }
+	    if (!SPIFFS.exists("/Config_File.json")) {
+		    Serial.println("Config file does not exist");
+		    return request->send(500, "text/plain", "Config file does not exist");
+	    }
+	    File configFile = SPIFFS.open("/Config_File.json", "r+");
+	    if (!configFile) {
+		    Serial.println("Failed to open config file for writing");
+		    return request->send(500, "text/plain", "Failed to open config file for writing");
+	    }
+	    if (configFile.size() == 0) {
+    		Serial.println("Config file is empty");
+    		return request->send(500, "text/plain", "Config file is empty");
+	    }
+	    char buf[configFile.size() + 1];
+	    configFile.readBytes(buf, configFile.size());
+	    buf[configFile.size()] = '\0';
+	    DynamicJsonDocument doc(1024);
+	    DeserializationError error = deserializeJson(doc, buf);
+	    if (error) {
+    		Serial.println("Failed to parse config file");
+    		Serial.println(error.c_str());
+    		return request->send(500, "text/plain", "Failed to parse config file");
+	    }
+
+	    for (JsonPair kv : doc.as<JsonObject>()) {
+    		String key = kv.key().c_str();
+    		String value = request->hasParam(key,true) ? request->arg(key) : " ";
+    		kv.value().set(value);
+            Serial.println(key);
+            Serial.println(value);
+            
+        }
+       
+
+        serializeJson(doc, configFile);
+
+
+	   
+	    configFile.close();
+
+	    return request->redirect("/main_config");
+
+    });
+
+
+    
+
+
+
+    
+
+
+
+
+    
+
+
+    
+
+    
 
     server.on("/soft_reboot", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(200, "text/html", "<html><body>Rebooting...</body></html>");
         delay(1000);
-        ESP.restart();
+        ESP.restart(); 
     });
 
-
-
     server.begin();
-
 }
+
+    
 
 
     
@@ -314,18 +398,3 @@ bool CaptivePortal::checkPassword(String password) {
     return password == defaultPassword;
 }
 
-// String CaptivePortal::getSignalIcon(int rssi){
-//     if (rssi >= -50) {
-//         return "<i class='fas fa-wifi' style='color:#4CAF50;'></i><i class='fas fa-wifi' style='color:#4CAF50;'></i><i class='fas fa-wifi' style='color:#4CAF50;'></i>";
-//     } 
-//     else if (rssi >= -70) {
-//         return "<i class='fas fa-wifi' style='color:#4CAF50;'></i><i class='fas fa-wifi' style='color:#4CAF50;'></i><i class='far fa-wifi' style='color:#4CAF50;'></i>";
-//     }  
-//     else if (rssi >= -80) {
-//         return "<i class='fas fa-wifi' style='color:#4CAF50;'></i><i class='far fa-wifi' style='color:#4CAF50;'></i><i class='far fa-wifi' style='color:#4CAF50;'></i>";
-//     } 
-//     else {
-//         return "<i class='far fa-wifi' style='color:#4CAF50;'></i><i class='far fa-wifi' style='color:#4CAF50;'></i><i class='far fa-wifi' style='color:#4CAF50;'></i>";
-//     }
-
-// }

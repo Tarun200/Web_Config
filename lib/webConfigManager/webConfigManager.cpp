@@ -1,5 +1,6 @@
 #include <WiFi.h>
 #include "webConfigManager.h"
+
 // #include "captivePortal.h"
 // #include <ESPAsyncWebServer.h>
 // #include <DNSServer.h>
@@ -47,6 +48,7 @@ void WebConfigManager::startAP() {
         WiFiClient client = server.available();
         if (client) {
             clientConnected = true;
+        
             // handle the client connection
             // read data from the client
             // Send data to the client
@@ -60,8 +62,8 @@ void WebConfigManager::startAP() {
 
 	
 	void WebConfigManager::exitWebConfig() {
-	    WiFi.softAPdisconnect(true);
-	    delay(1000);
+	    // WiFi.softAPdisconnect(true);
+	    // delay(1000);
 	}
 
     void WebConfigManager::checkHeap(){

@@ -1,7 +1,11 @@
-#include "WebConfigModeDetection.h"
+#include "WebConfigDetection.h"
+
+
+
 
 WebConfigModeDetection::WebConfigModeDetection() {
   preferences.begin("webconfig", false);
+
 }
 
 bool WebConfigModeDetection::isWebConfigMode() {
