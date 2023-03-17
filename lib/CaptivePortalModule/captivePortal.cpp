@@ -331,13 +331,39 @@ void CaptivePortal::init() {
             Serial.println(value);
             
         }
+        File configFile1 = SPIFFS.open("/Config_File.json", "w");
+            if (!configFile1) {
+                Serial.println("Failed to open config file for writing");
+                return;
+            }
        
 
         serializeJson(doc, configFile);
 
 
 	   
-	    configFile.close();
+	    configFile1.close();
+        
+        // // Open the file for reading
+        // File configFile2 = SPIFFS.open("/Config_File.json", "r");
+  
+        // // Check if the file was successfully opened
+        // if (!configFile2) {
+        //     Serial.println("Failed to open Config_File.json");
+        //     return;
+        // }
+  
+        // // Read the contents of the file
+        // String configContents = "";
+        // while (configFile2.available()) {
+        //     configContents += (char) configFile1.read();
+        // }
+  
+        // // Print the contents of the file to the serial monitor
+        // Serial.println(configContents);
+  
+        // // Close the file
+        // configFile2.close();
 
 	    return request->redirect("/main_config");
 
