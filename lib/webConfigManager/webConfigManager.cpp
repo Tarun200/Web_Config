@@ -1,17 +1,20 @@
 #include <WiFi.h>
 #include "webConfigManager.h"
 
-// #include "captivePortal.h"
-// #include <ESPAsyncWebServer.h>
-// #include <DNSServer.h>
-// #include <ESPAsyncWiFiManager.h>
 
-// AsyncWebServer server(80);
-// DNSServer dns;
+
+#include "captivePortal.h"
+#include <ESPAsyncWebServer.h>
+#include <DNSServer.h>
+#include <ESPAsyncWiFiManager.h>
+
+AsyncWebServer server(80);
+DNSServer dns;
 // AsyncWiFiManager wifiManager(&server,&dns);
 
 // CaptivePortal captivePortal(server,dns,wifiManager);
-void WebConfigManager::ssid_key_gen() {
+void WebConfigManager::ssid_key_gen()
+{
     randomSeed(micros());
     char ssid_temp[] = "TMGY GWAY";
     int ssid_len = strlen(ssid_temp);
@@ -29,7 +32,9 @@ void WebConfigManager::ssid_key_gen() {
 
 void WebConfigManager::startAP() {
 	    WiFi.mode(WIFI_AP_STA);
-	}
+        CaptivePortal captive;
+        captive.init();
+        }
 	
 	void WebConfigManager::checkClient() {
 	    if (WiFi.softAPgetStationNum() > 0) {
@@ -53,7 +58,9 @@ void WebConfigManager::startAP() {
             // read data from the client
             // Send data to the client
             // Close the connection when done
+
             
+
             client.stop();
             clientConnected = false;
         }
@@ -70,6 +77,9 @@ void WebConfigManager::startAP() {
         uint32_t freeHeap = esp_get_free_heap_size();
         Serial.println("Free heap: " + String(freeHeap));
     }
+
+    
+
 
 
 

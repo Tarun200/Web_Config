@@ -1,18 +1,24 @@
-#ifndef WEB_CONFIG_MODE_DETECTION_H
-#define WEB_CONFIG_MODE_DETECTION_H
+#ifndef _WEBCONFIG_DETECTION_H_
+#define _WEBCONFIG_DETECTION_H_
 
-#include <Arduino.h>
-#include <WiFi.h>
 #include <Preferences.h>
-#include "webConfigManager.h"
+#include <RTClib.h>
+#include<nvs_flash.h>
+#include<Wire.h>
 
-class WebConfigModeDetection{
-  public:
-    WebConfigModeDetection();
-    bool isWebConfigMode();
+class WebConfigDetection {
   private:
     Preferences preferences;
+    RTC_DS1307 rtc;
+    const char* nvs_partition_name;
+    const uint32_t time_diff_threshold = 10;
+    
+    
+  public:
+    WebConfigDetection(const char* nvs_partition_name);
+    ~WebConfigDetection();
+    bool isTimeWithinThreshold();
+    void RTC_init();
 };
+
 #endif
-
-

@@ -5,6 +5,8 @@
 #define PASSWORD_LENGTH 20
 #define DEFAULT_TIMEOUT 30
 
+#include<ESPAsyncWiFiManager.h>
+
 class WebConfigManager {
 private:
     char ssid[SSID_LENGTH];
@@ -22,6 +24,8 @@ public:
     void forwardToCaptivePortal();
     void exitWebConfig();
     void checkHeap();
+    
+
 };
 
 
