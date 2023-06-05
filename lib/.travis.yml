@@ -1,0 +1,10 @@
+language: cpp
+
+install:
+  - pip install platformio
+
+env:
+  - PLATFORMIO_CI_SRC=src/main.cpp
+
+script:
+  - platformio run

@@ -232,8 +232,9 @@ void CaptivePortal::init() {
 
             configFile.close();
          }
-         String html = "<h2>Config_File.json Serialized successfully</h2>";
-         request->send(200, "text/html", html);             
+        //  String html = "<h2>Config_File.json Serialized successfully</h2>";
+        //  request->send(200, "text/html", html);
+         return request->redirect("/main_config");           
 
 
 

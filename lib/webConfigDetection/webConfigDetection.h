@@ -11,7 +11,7 @@ class WebConfigDetection {
     Preferences preferences;
     RTC_DS1307 rtc;
     const char* nvs_partition_name;
-    const uint32_t time_diff_threshold = 10;
+    const uint32_t time_diff_threshold = 20;
     
     
   public:
